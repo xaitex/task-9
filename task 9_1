@@ -1,0 +1,41 @@
+import csv
+
+input_file = "USA_GDP.csv"
+output_file = "USA_GDP_Result.csv"
+
+try:
+    with open(input_file, "r", encoding="utf-8") as csvfile:
+        reader = csv.DictReader(csvfile, delimiter=",")
+        gdp_data = {}
+
+        print(f"{'Рік':<15} | {'GDP per capita ($)':<20}")
+        print("-" * 35)
+
+        for row in reader:
+            if row['Country Code'] == 'USA' or row['Country Name'] == 'United States':
+                for year in range(1991, 2020):
+                    col_name = f"{year} [YR{year}]"
+                    value = row.get(col_name, "")
+
+                    if value and value != "..":
+                        gdp_data[col_name] = float(value)
+                        print(f"{col_name:<15} | {gdp_data[col_name]:,.2f}")
+
+    if gdp_data:
+        min_year = min(gdp_data, key=gdp_data.get)
+        max_year = max(gdp_data, key=gdp_data.get)
+
+        with open(output_file, "w", newline="", encoding="utf-8") as outfile:
+            writer = csv.writer(outfile, delimiter=";")
+            writer.writerow(["Indicator", "Year", "Value"])
+            writer.writerow(["Lowest GDP", min_year, gdp_data[min_year]])
+            writer.writerow(["Highest GDP", max_year, gdp_data[max_year]])
+
+        print("\nРезультати записано у файл.")
+    else:
+        print("Дані для США не знайдено.")
+
+except FileNotFoundError:
+    print("Файл не знайдено.")
+except Exception as e:
+    print(f"Помилка: {e}")
